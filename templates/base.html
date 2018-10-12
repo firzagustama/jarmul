@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css">
+
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+  <body>
+    <div class="container" style="max-width: 400px;">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand navbar-light">
+        <a class="navbar-brand font-weight-bold" href="{{ url_for('index') }}">Image, Audio, Video Converter</a>
+      </nav>
+
+      <div class="alert alert-danger alert-dismissible fade show" id="flash" style="display: none;">
+        <p id="flash_message"><strong>Error:</strong> {{ message }}</p>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <!-- Message flashing -->
+          {% for category, message in messages %}
+            {% if category == 'error' %}
+              <div class="alert alert-danger alert-dismissible fade show">
+                <strong>Error:</strong> {{ message }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+              </div>
+            {% else %}
+              <div class="alert alert-success alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      <div class="p-3">
+        {% block body %}{% endblock %}
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+  </body>
+</html>

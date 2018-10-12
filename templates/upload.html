@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Upload - Data Compressor{% endblock %}
+
+{% block body %}
+  <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <div class="custom-file">
+        <input type="file" name="file" class="custom-file-input" id="file" required>
+        <label for="file" class="custom-file-label">Choose file</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="action" id="Converter" value="Converter" required>
+        <label class="form-check-label" for="Converter">Converter</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="action" id="Conversion" value="Conversion" required>
+        <label class="form-check-label" for="Conversion">Conversion</label>
+      </div>
+    </div>
+    <div class="form-group" id="converterForm" style="display: none;">
+      <label for="convert_to">Convert to</label>
+      <select name="convert_to" class="custom-select" id="convert_to">
+      </select>
+      <input type="hidden" id="filetype" name="filetype" value="">
+    </div>
+    <div class="form-group" id="conversionForm" style="display: none;">
+       <div class="alert alert-info alert-dismissible">
+        <strong>Info:</strong> Leave blank for default</p>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Run</button>
+  </form>
+
+  <script>
+    window.onload = function() {
+      var globalfile;
+
+      var extension = [];
+      extension[0] = ["bmp", "jpg", "tiff", "png"];
+      extension[1] = ["wav", "mp3", "aiff", "ogg"];
+      extension[2] = ["WMV", "mp4", "avi", "mkv", "mpeg"];
+
+      var conversion = [];
+      conversion[0] = ["Image resolution", "Color depth", "Conversion rate"];
+      conversion[1] = ["Bitrate", "Channel", "Audio sample rate"];
+      conversion[2] = ["Frame size (width & height)", "Bitrate", "Frame rate", "Channel", "Audio sample rate"];
+
+      var canConvert = false;
+      var filetype = -1;
+      var fileext = -1;
+
+      let fileName = "";
+
+      $('#file').on('change', function(e) {
+          globalfile = e.target.files[0]
+          fileName = e.target.files[0].name;
+          $(this).next('.custom-file-label').html(fileName);
+
+          if(fileName != ""){
+              var file_ext = fileName.substr((fileName.lastIndexOf('.') + 1));
+            }
+            
+          var i, j, valid = false;
+          for(i = 0; i < extension.length; i++){
+            for(j = 0; j < extension[i].length; j++){
+              if(file_ext == extension[i][j]){
+                filetype = i;
+                fileext = j;
+                canConvert = true;
+                $("#filetype").val(i);
+
+                return
+              }
+            }
+          }
+
+          $("#flash").show()
+          $("#flash_message").html("<strong>Error:</strong> Cannot convert file");
+      });
+
+      $('input[type=radio][name=action]').change(function(){
+          if(this.value == "Converter"){
+            $("#converterForm").show();
+            $("#conversionForm").removeAttr("style").hide();
+
+            if(canConvert){
+              var innerHtml = "";
+              var i;
+
+              for(i = 0; i<extension[filetype].length; i++){
+                if(i == fileext)
+                  continue;
+
+                var ext = extension[filetype][i];
+                innerHtml += "<option value='" + ext + "'>" + ext + "</option>"
+              }
+
+              $("#convert_to").html(innerHtml);
+            }
+          }
+          else if(this.value == "Conversion"){
+            $("#converterForm").removeAttr("style").hide();
+            $("#conversionForm").show();
+
+            if(canConvert){
+              var innerHtml = $("#conversionForm").html();
+              var i;
+
+              if(filetype == 0){
+                innerHtml += "<div style='display:flex;'>" +
+                          "<div><label for='width'>Width (px)</label><input type='number' class='form-control' id='width' name='width'></div>"+
+                          "<div><label for='height'>Height (px)</label><input type='number' class='form-control' id='height' name='height'></div>"+
+                          "</div>";
+
+                innerHtml += '<label for="quality">Quality</label>' +
+                          "<input type='number' class='form-control id='quality' name='quality' max='200' min='0' value='100'>"
+
+                innerHtml += "<label for='color_depth'>Color Depth</label>" +
+                          '<select name="color_depth" class="custom-select" id="color_depth">' +
+                          "<option value=''></option>" +
+                          "<option value='1'>Black and White</option>" +
+                          "<option value='L'>Greyscale</option>" +
+                          "<option value='RGB'>True color (RGB)</option>" +
+                          "<option value='CMYK'>Pre-press (CMYK)</option>" +
+                          '</select>'
+
+                innerHtml += "<label for='filter'>Filter</label>" +
+                          "<select name='filter' class='custom-select' id='filter'>" +
+                          "<option value=''></option>" +
+                          "<option value='blur'>Blur</option>" +
+                          "<option value='contour'>Contour</option>" +
+                          "<option value='detail'>Detail</option>" +
+                          "</select>"
+              }
+              else if(filetype == 1){
+                  innerHtml = '<div class="form-group">' +
+                            '<label for="bitrate">Bitrate</label>' +
+                            '<select id="bitrate" name="bitrate" class="custom-select" required>' +
+                            '<option value="64k">64 kbps</option>' +
+                            '<option value="128k">128 kbps</option>' +
+                            '<option value="192k">192 kbps</option>' +
+                            '<option value="256k">256 kbps</option>' +
+                            '<option value="320k">320 kbps</option>' +
+                            '</select></div>'
+
+                  innerHtml += '<div class="form-group">' +
+                            '<label for="samplerate">Sample Rate</label>' +
+                            '<select id="samplerate" name="samplerate" class="custom-select"" required>' +
+                            '<option value="32000">32 KHz</option>' +
+                            '<option value="44100">44 KHz</option>' +
+                            '<option value="48000">48 KHz</option>' +
+                            '</select></div>'
+
+                  innerHtml += '<div class="form-group">' +
+                            '<label for="channel">Channel</label>' +
+                            '<select id="channel" name="channel" class="custom-select" required>' +
+                            '<option value="1">1</option>' +
+                            '<option value="2">2</option>' +
+                            '</select></div>'
+              }
+              else if(filetype == 2){
+                innerHtml = '<div class="form-group">' +
+                          '<label for="framesize">Frame Size (Resolution)</label>'+
+                          '<select id="framesize" name="framesize" class="custom-select" required>'+
+                            '<option value="426:240">426 x 240 <i>(240p)</i></option>'+
+                            '<option value="640:360">640 x 360 <i>(360p)</i></option>'+
+                            '<option value="854:480">854 x 480 <i>(480p)</i></option>'+
+                            '<option value="1280:720">1280 x 720 <i>(720p)</i></option>'+
+                            '<option value="1920:1080">1920 x 1080 <i>(1080p)</i></option>'+
+                            '<option value="2560:1440">2560 x 1440 <i>(1440p (2K))</i></option>'+
+                            '<option value="3840:2160">3840 x 2160 <i>(2160p (4K))</i></option>'+
+                          '</select>'+
+                        '</div>'
+
+                innerHtml += '<div class="form-group">'+
+                          '<label for="bitrate">Bitrate</label>'+
+                          '<select name="bitrate" class="custom-select" id="bitrate" required>'+
+                            '<option value="64k">64 kbps</option>'+
+                            '<option value="128k">128 kbps</option>'+
+                            '<option value="1M">1 Mbps</option>'+
+                            '<option value="2.5M">2.5 Mbps</option>'+
+                            '<option value="5M">5 Mbps</option>'+
+                            '<option value="8M">8 Mbps</option>'+
+                            '<option value="10M">10 Mbps</option>'+
+                            '<option value="16M">16 Mbps</option>'+
+                          '</select>'+
+                        '</div>'
+
+                innerHtml += '<div class="form-group">'+
+                          '<label for="framerate">Frame Rate</label>'+
+                          '<select name="framerate" class="custom-select" id="framerate" required>'+
+                            '<option value="23.976">24 fps</option>'+
+                            '<option value="25">25 fps</option>'+
+                            '<option value="29.97">30 fps</option>'+
+                            '<option value="50">50 fps</option>'+
+                            '<option value="60">60 fps</option>'+
+                          '</select>'+
+                        '</div>'
+
+                innerHtml += '<div class="form-group">'+
+                          '<label for="channel">Channel</label>'+
+                          '<select name="channel" class="custom-select" id="channel" required>'+
+                            '<option value="1">Mono</option>'+
+                            '<option value="2">Stereo</option>'+
+                          '</select>'+
+                        '</div>'
+
+                innerHtml += '<div class="form-group">'+
+                          '<label for="samplerate">Audio Sample Rate</label>'+
+                          '<select name="samplerate" class="custom-select" id="samplerate" required>'+
+                            '<option value="32000">32 KHz</option>'+
+                            '<option value="44100">44 KHz</option>'+
+                            '<option value="48000">48 KHz</option>'+
+                          '</select>'+
+                        '</div>'
+              }
+              else{
+                for(i = 0; i < conversion[filetype].length; i++){
+                  var conv = conversion[filetype][i];
+                  innerHtml += "<label for='"+ conv +"'>"+ conv +"</label>";
+                  innerHtml += "<input type='text' class='form-control' id='"+ conv +"'>";
+                }
+              }
+
+              $("#conversionForm").html(innerHtml);
+            }
+          }
+      });
+    };
+  </script>
+{% endblock %}
