@@ -1,13 +1,10 @@
 How to run
 
 ```
-pip install -r requirements.txt
-export FLASK_APP=data-compressor.py
-flask run
+1. Python 3
+2. Pillow python
+3. Pydub
+4. ffmpeg
+5. libavcodec
+6. ffmpy
 ```
-
-References
-1. https://github.com/sh1r0/adaptive-huffman-coding
-2. http://www.inference.org.uk/mackay/python/compress/
-# jarmul
-# jarmul
