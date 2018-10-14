@@ -8,7 +8,7 @@ How to run
 5. pip3 install pydub
 6. apt-get install ffmpeg libavcodec
 7. pip3 install ffmpy
-8. export FLASK_APP=data-compress.py
+8. export FLASK_APP=data-compressor.py
 9. export FLASK_ENV=development
 10. flask run
 11. buka localhost
