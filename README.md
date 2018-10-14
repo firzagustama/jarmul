@@ -6,7 +6,7 @@ How to run
 3. pip3 install -r "requirement.txt"
 4. pip3 install pillow
 5. pip3 install pydub
-6. pip3 install ffmpeg libavcodec
+6. apt-get install ffmpeg libavcodec
 7. pip3 install ffmpy
 8. export FLASK_APP=data-compress.py
 9. export FLASK_ENV=development
